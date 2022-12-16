@@ -2,57 +2,46 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-import torch
-from torch import LongTensor, FloatTensor
-from torch.utils.data import Dataset
+from easyfl.datasets import FederatedTensorDataset
 
 from utils import one_hot_encoding, normalize
 
 
-class UCIIncome(Dataset):
-    def __init__(self, X: FloatTensor, y: LongTensor = None) -> None:
-        super().__init__()
-        self.X = X
-        self.y = y
+def get_dataset(is_norm = True, train_size = 0.8, labeled_size = 0.1, num_of_client = 10) -> Tuple[FederatedTensorDataset, FederatedTensorDataset, FederatedTensorDataset]:
+    if train_size <= 0.0 or train_size >= 1.0:
+        raise ValueError("train_size must be between (0,1)")
+    if labeled_size <= 0.0 or labeled_size >= 1.0:
+        raise ValueError("labeled_size must be between (0,1)")
 
-    def __len__(self) -> int:
-        return self.X.shape[0]
+    target_column_name = "salary"
 
-    def __getitem__(self, index) -> Tuple[FloatTensor, LongTensor] | FloatTensor:
-        x = self.X[index]
-        if self.y is None:
-            return x
-        else:
-            y = self.y[index]
-            return x, y
+    # read csv
+    df: pd.DataFrame = pd.read_csv("./data/uci_income/adult.csv", sep=",")
 
-    @staticmethod
-    def get_dataset(is_norm = True, train_size = 0.8, labeled_size = 0.1) -> Tuple[FloatTensor, LongTensor, FloatTensor, FloatTensor, LongTensor]:
-        target_column_name = "salary"
+    # one-hot encoding
+    df = one_hot_encoding(df, target_column_name)
 
-        # read csv
-        df: pd.DataFrame = pd.read_csv("./data/uci_income/adult.csv", sep=",")
+    # normalization
+    if is_norm:
+        df = normalize(df)
 
-        # one-hot encoding
-        df = one_hot_encoding(df, target_column_name)
+    # data split
+    train_data          : np.ndarray
+    train_labeled_data  : np.ndarray
+    train_unlabeled_data: np.ndarray
+    test_data           : np.ndarray
+    # train & test split
+    train_data, test_data = train_test_split(df.values, train_size=train_size)
+    # labeled & unlabeled split
+    train_labeled_data, train_unlabeled_data = train_test_split(train_data, train_size=labeled_size)
 
-        # normalization
-        if is_norm:
-            df = normalize(df)
+    # easyfl dataset
+    train_labeled_data   = {"x": train_labeled_data[:,:-1],   "y": train_labeled_data[:,-1]}
+    train_unlabeled_data = {"x": train_unlabeled_data[:,:-1], "y": train_unlabeled_data[:,-1]}
+    test_data            = {"x": test_data[:,:-1],            "y": test_data[:,-1]}
 
-        # data split
-        train_data: np.ndarray
-        test_data:  np.ndarray
-        train_l:    np.ndarray
-        train_u:    np.ndarray
-        train_data, test_data = train_test_split(df.values, train_size=train_size)
-        train_l, train_u = train_test_split(train_data, train_size=labeled_size)
+    fl_labeled_data   = FederatedTensorDataset(data=train_labeled_data, num_of_clients=num_of_client)
+    fl_unlabeled_data = FederatedTensorDataset(data=train_unlabeled_data, num_of_clients=num_of_client)
+    fl_test_data      = FederatedTensorDataset(data=test_data, num_of_clients=num_of_client)
 
-        # transform ndarray to tensor
-        X_l_train = torch.from_numpy(train_l[:,:-1].astype(np.float32)).clone()
-        y_train = torch.from_numpy(train_l[:,-1].astype(np.int64)).clone()
-        X_u_train = torch.from_numpy(train_u[:,:-1].astype(np.float32)).clone()
-        X_test    = torch.from_numpy(test_data[:,:-1].astype(np.float32)).clone()
-        y_test    = torch.from_numpy(test_data[:,-1].astype(np.int64)).clone()
-
-        return X_l_train, y_train, X_u_train, X_test, y_test
+    return fl_labeled_data, fl_unlabeled_data, fl_test_data
