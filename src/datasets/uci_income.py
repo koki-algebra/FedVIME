@@ -36,9 +36,9 @@ def get_dataset(is_norm = True, train_size = 0.8, labeled_size = 0.1, num_of_cli
     train_labeled_data, train_unlabeled_data = train_test_split(train_data, train_size=labeled_size)
 
     # easyfl dataset
-    train_labeled_data   = {"x": train_labeled_data[:,:-1],   "y": train_labeled_data[:,-1]}
-    train_unlabeled_data = {"x": train_unlabeled_data[:,:-1], "y": train_unlabeled_data[:,-1]}
-    test_data            = {"x": test_data[:,:-1],            "y": test_data[:,-1]}
+    train_labeled_data   = {"x": train_labeled_data[:,:-1].astype(np.float32),   "y": train_labeled_data[:,-1]}
+    train_unlabeled_data = {"x": train_unlabeled_data[:,:-1].astype(np.float32), "y": train_unlabeled_data[:,-1]}
+    test_data            = {"x": test_data[:,:-1].astype(np.float32),            "y": test_data[:,-1]}
 
     fl_labeled_data   = FederatedTensorDataset(data=train_labeled_data, num_of_clients=num_of_client)
     fl_unlabeled_data = FederatedTensorDataset(data=train_unlabeled_data, num_of_clients=num_of_client)

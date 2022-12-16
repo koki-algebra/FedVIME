@@ -12,7 +12,7 @@ class SelfSLClient(BaseClient):
         super().__init__(cid, conf, train_data, test_data, device, sleep_time, is_remote, local_port, server_addr, tracker_addr)
 
     def load_loss_fn(self, conf):
-        return SelfSLLoss(alpha=conf.alpha)
+        return SelfSLLoss(alpha=3.0)
 
     def train(self, conf, device):
         start_time = time.time()
@@ -26,7 +26,7 @@ class SelfSLClient(BaseClient):
                 X: Tensor = X.to(device)
 
                 # pretext generate
-                M, X_tilde = pretext_generator(X, conf.p_m)
+                M, X_tilde = pretext_generator(X, p_m=0.4, device=device)
 
                 # compute prediction and loss
                 M_pred, X_pred = self.model(X_tilde)
@@ -43,9 +43,13 @@ class SelfSLClient(BaseClient):
             current_epoch_loss = sum(batch_loss) / len(batch_loss)
             self.train_loss.append(float(current_epoch_loss))
             logging.debug("Client {}, local epoch: {}, loss: {}".format(self.cid, i, current_epoch_loss))
-        
+
         self.train_time = time.time() - start_time
         logging.debug("Client {}, Train Time: {}".format(self.cid, self.train_time))
+
+    def test(self, conf, device=...):
+        # pass the test in Self-Supervised Learning
+        pass
 
 
 # SelfSLLoss: Self-SL loss function
