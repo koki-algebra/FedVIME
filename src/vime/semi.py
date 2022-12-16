@@ -1,4 +1,5 @@
 from torch import nn, Tensor
+from easyfl.models import BaseModel
 
 
 class SemiSLNetworks(nn.Module):

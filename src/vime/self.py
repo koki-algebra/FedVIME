@@ -2,9 +2,10 @@ from typing import Tuple
 
 from torch import nn
 from torch import Tensor, sigmoid
+from easyfl.models import BaseModel
 
 
-class SelfSLNetworks(nn.Module):
+class SelfSLNetworks(BaseModel):
     def __init__(self, dim_x: int, dim_z: int, is_norm=True) -> None:
         super().__init__()
         self.is_norm = is_norm
