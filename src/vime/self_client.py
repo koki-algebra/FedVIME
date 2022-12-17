@@ -6,7 +6,7 @@ from easyfl.client.base import BaseClient
 
 from utils import pretext_generator
 
-from omegaconf.dictconfig import DictConfig
+logger = logging.getLogger(__name__)
 
 
 class SelfSLClient(BaseClient):
@@ -49,10 +49,10 @@ class SelfSLClient(BaseClient):
 
             current_epoch_loss = sum(batch_loss) / len(batch_loss)
             self.train_loss.append(float(current_epoch_loss))
-            logging.debug("Client {}, local epoch: {}, loss: {}".format(self.cid, i, current_epoch_loss))
+            logger.info("Client {}, local epoch: {}, loss: {}".format(self.cid, i, current_epoch_loss))
 
         self.train_time = time.time() - start_time
-        logging.debug("Client {}, Train Time: {}".format(self.cid, self.train_time))
+        logger.info("Client {}, Train Time: {}".format(self.cid, self.train_time))
 
     def test(self, conf, device=...):
         # pass the test in Self-Supervised Learning
