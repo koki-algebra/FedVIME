@@ -2,7 +2,7 @@ from torch import nn, Tensor
 from easyfl.models import BaseModel
 
 
-class SemiSLNetworks(nn.Module):
+class SemiSLNetworks(BaseModel):
     def __init__(self, encoder: nn.Module, dim_z: int, dim_y: int) -> None:
         super().__init__()
         # pre-trained encoder
