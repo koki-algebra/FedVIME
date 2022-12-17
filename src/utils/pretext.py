@@ -22,5 +22,4 @@ def pretext_generator(X: Tensor, p_m: float, device: str) -> Tuple[Tensor, Tenso
     # true mask
     M = 1.0 * (X != X_tilde)
 
-
     return M, X_tilde

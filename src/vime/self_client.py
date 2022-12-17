@@ -10,8 +10,31 @@ logger = logging.getLogger(__name__)
 
 
 class SelfSLClient(BaseClient):
-    def __init__(self, cid, conf, train_data, test_data, device, sleep_time=0, is_remote=False, local_port=23000, server_addr="localhost:22999", tracker_addr="localhost:12666"):
-        super().__init__(cid, conf, train_data, test_data, device, sleep_time, is_remote, local_port, server_addr, tracker_addr)
+    def __init__(
+        self,
+        cid,
+        conf,
+        train_data,
+        test_data,
+        device,
+        sleep_time=0,
+        is_remote=False,
+        local_port=23000,
+        server_addr="localhost:22999",
+        tracker_addr="localhost:12666",
+    ):
+        super().__init__(
+            cid,
+            conf,
+            train_data,
+            test_data,
+            device,
+            sleep_time,
+            is_remote,
+            local_port,
+            server_addr,
+            tracker_addr,
+        )
 
     def load_loss_fn(self, conf):
         # hyperparams
@@ -27,7 +50,7 @@ class SelfSLClient(BaseClient):
         # training
         for i in range(conf.local_epoch):
             batch_loss = []
-            for X, _ in self.train_loader:
+            for X, _ in self.train_loader["unlabeled"]:
                 X: Tensor = X.to(device)
                 # hyperparams
                 p_m = conf.hyperparams.p_m
@@ -49,7 +72,11 @@ class SelfSLClient(BaseClient):
 
             current_epoch_loss = sum(batch_loss) / len(batch_loss)
             self.train_loss.append(float(current_epoch_loss))
-            logger.info("Client {}, local epoch: {}, loss: {}".format(self.cid, i, current_epoch_loss))
+            logger.info(
+                "Client {}, local epoch: {}, loss: {}".format(
+                    self.cid, i, current_epoch_loss
+                )
+            )
 
         self.train_time = time.time() - start_time
         logger.info("Client {}, Train Time: {}".format(self.cid, self.train_time))
@@ -65,7 +92,9 @@ class SelfSLLoss(nn.Module):
         super().__init__()
         self.alpha = alpha
 
-    def forward(self, M_pred: Tensor, M_target: Tensor, X_pred: Tensor, X_target: Tensor) -> float:
+    def forward(
+        self, M_pred: Tensor, M_target: Tensor, X_pred: Tensor, X_target: Tensor
+    ) -> float:
         mask_loss = nn.BCELoss()
         feature_loss = nn.MSELoss()
         return mask_loss(M_pred, M_target) + self.alpha * feature_loss(X_pred, X_target)

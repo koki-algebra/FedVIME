@@ -10,12 +10,12 @@ class SemiSLNetworks(BaseModel):
         # predictor
         self.predictor = nn.Sequential(
             nn.BatchNorm1d(dim_z),
-            nn.Linear(dim_z, dim_z*2),
+            nn.Linear(dim_z, dim_z * 2),
             nn.ReLU(),
-            nn.BatchNorm1d(dim_z*2),
-            nn.Linear(dim_z*2, dim_z),
+            nn.BatchNorm1d(dim_z * 2),
+            nn.Linear(dim_z * 2, dim_z),
             nn.ReLU(),
-            nn.Linear(dim_z, dim_y)
+            nn.Linear(dim_z, dim_y),
         )
 
     def forward(self, X: Tensor) -> Tensor:

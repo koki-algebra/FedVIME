@@ -13,13 +13,13 @@ class SelfSLNetworks(BaseModel):
         # encoder e: X -> Z
         self.encoder = nn.Sequential(
             nn.BatchNorm1d(dim_x),
-            nn.Linear(dim_x, dim_x*2),
+            nn.Linear(dim_x, dim_x * 2),
             nn.ReLU(),
-            nn.BatchNorm1d(dim_x*2),
-            nn.Linear(dim_x*2, dim_x*2),
+            nn.BatchNorm1d(dim_x * 2),
+            nn.Linear(dim_x * 2, dim_x * 2),
             nn.ReLU(),
-            nn.BatchNorm1d(dim_x*2),
-            nn.Linear(dim_x*2, dim_z)
+            nn.BatchNorm1d(dim_x * 2),
+            nn.Linear(dim_x * 2, dim_z),
         )
 
         # mask vector estimator s_m: Z -> {0,1}^d
