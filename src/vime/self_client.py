@@ -6,13 +6,18 @@ from easyfl.client.base import BaseClient
 
 from utils import pretext_generator
 
+from omegaconf.dictconfig import DictConfig
+
 
 class SelfSLClient(BaseClient):
     def __init__(self, cid, conf, train_data, test_data, device, sleep_time=0, is_remote=False, local_port=23000, server_addr="localhost:22999", tracker_addr="localhost:12666"):
         super().__init__(cid, conf, train_data, test_data, device, sleep_time, is_remote, local_port, server_addr, tracker_addr)
 
     def load_loss_fn(self, conf):
-        return SelfSLLoss(alpha=3.0)
+        # hyperparams
+        alpha = conf.hyperparams.alpha
+
+        return SelfSLLoss(alpha)
 
     def train(self, conf, device):
         start_time = time.time()
@@ -24,9 +29,11 @@ class SelfSLClient(BaseClient):
             batch_loss = []
             for X, _ in self.train_loader:
                 X: Tensor = X.to(device)
+                # hyperparams
+                p_m = conf.hyperparams.p_m
 
                 # pretext generate
-                M, X_tilde = pretext_generator(X, p_m=0.4, device=device)
+                M, X_tilde = pretext_generator(X, p_m, device)
 
                 # compute prediction and loss
                 M_pred, X_pred = self.model(X_tilde)
