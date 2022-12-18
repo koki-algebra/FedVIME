@@ -135,7 +135,7 @@ class FederatedUCIIncomeDataset(FederatedTensorDataset):
 
 
 def get_dataset(
-    labeled_size: float, is_norm=True, train_size=0.8
+    labeled_size: float, is_norm=True, train_size=0.8, num_of_clients=10
 ) -> Tuple[FederatedUCIIncomeDataset, FederatedUCIIncomeDataset]:
     if train_size <= 0.0 or train_size >= 1.0:
         raise ValueError("train_size must be between (0,1)")
@@ -166,8 +166,10 @@ def get_dataset(
 
     # federated dataset
     fed_train_dataset = FederatedUCIIncomeDataset(
-        data=train_dataset, labeled_size=labeled_size
+        data=train_dataset, labeled_size=labeled_size, num_of_clients=num_of_clients
     )
-    fed_test_dataset = FederatedUCIIncomeDataset(data=test_dataset)
+    fed_test_dataset = FederatedUCIIncomeDataset(
+        data=test_dataset, num_of_clients=num_of_clients
+    )
 
     return fed_train_dataset, fed_test_dataset
