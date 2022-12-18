@@ -25,4 +25,5 @@ RUN apt-get update \
 
 USER jovyan
 
-RUN pip install torch torchvision torchaudio easyfl
+RUN pip install torch torchvision torchaudio easyfl \
+ && pip install git+https://github.com/psf/black

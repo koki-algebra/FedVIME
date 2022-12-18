@@ -25,7 +25,7 @@ if __name__ == "__main__":
     warnings.simplefilter("ignore")
 
     train_data, test_data = uci_income.get_dataset(
-        num_of_clients=100, labeled_size=1.0, train_size=0.8
+        num_of_clients=100, labeled_size=1.0, train_size=0.08
     )
 
     print(train_data.size("f0000000"))
