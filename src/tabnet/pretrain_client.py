@@ -2,9 +2,9 @@ import time
 import logging
 
 from torch import Tensor
-from torch.nn.utils import clip_grad_norm_
 from easyfl.client.base import BaseClient
 from pytorch_tabnet.utils import check_input
+from pytorch_tabnet.metrics import UnsupervisedLoss
 
 logger = logging.getLogger(__name__)
 
@@ -36,20 +36,20 @@ class PretrainerClient(BaseClient):
             tracker_addr,
         )
 
+    def load_loss_fn(self, conf):
+        return UnsupervisedLoss
+
     def train(self, conf, device):
         start_time = time.time()
         loss_fn, optimizer = self.pretrain_setup(conf, device)
         self.train_loss = []
-
-        # model parameters
-        clip_value: float = conf.model_params.clip_value
 
         for i in range(conf.local_epoch):
             train_dataloader = self.train_loader["unlabeled"]
 
             batch_loss = []
             for X, _ in train_dataloader:
-                X = X.to(device).float()
+                X: Tensor = X.to(device).float()
 
                 check_input(X)
 
@@ -61,8 +61,6 @@ class PretrainerClient(BaseClient):
 
                 # Perform backward pass and optimization
                 loss.backward()
-                if clip_value:
-                    clip_grad_norm_(self.model.parameters(), clip_value)
                 optimizer.step()
 
                 # batch loss
