@@ -3,7 +3,6 @@ import logging
 
 from torch import Tensor
 from easyfl.client.base import BaseClient
-from pytorch_tabnet.utils import check_input
 from pytorch_tabnet.metrics import UnsupervisedLoss
 
 logger = logging.getLogger(__name__)
@@ -50,8 +49,6 @@ class PretrainerClient(BaseClient):
             batch_loss = []
             for X, _ in train_dataloader:
                 X: Tensor = X.to(device).float()
-
-                check_input(X)
 
                 for param in self.model.parameters():
                     param.grad = None
