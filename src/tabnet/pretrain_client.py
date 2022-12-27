@@ -50,13 +50,11 @@ class PretrainerClient(BaseClient):
             for X, _ in train_dataloader:
                 X: Tensor = X.to(device).float()
 
-                for param in self.model.parameters():
-                    param.grad = None
-
                 output, embedded_X, obf_vars = self.model(X)
                 loss: Tensor = loss_fn(output, embedded_X, obf_vars)
 
                 # Perform backward pass and optimization
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
 
