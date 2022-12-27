@@ -1,2 +1,1 @@
-from . import uci_income
-from .dataset import get_ndarray
+from .dataset import get_dataset

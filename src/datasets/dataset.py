@@ -6,19 +6,20 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
 
-def get_ndarray(file_path: str, target: str, labeled_size: float, train_size=0.8) -> Tuple[Dict[str, Tuple[np.ndarray, np.ndarray]], List[int], List[int]]:
+def get_dataset(
+    file_path: str, target: str, labeled_size: float, train_size=0.8
+) -> Tuple[Dict[str, Tuple[np.ndarray, np.ndarray]], List[int], List[int]]:
     df: pd.DataFrame = pd.read_csv(file_path, sep=",")
 
     train_l_df: pd.DataFrame
     train_u_df: pd.DataFrame
-    test_df   : pd.DataFrame
+    test_df: pd.DataFrame
     train_df, test_df = train_test_split(df, train_size=train_size)
     train_l_df, train_u_df = train_test_split(train_df, train_size=labeled_size)
 
     train_l_indices = train_l_df.index.values
     train_u_indices = train_u_df.index.values
-    test_indices  = test_df.index.values
-
+    test_indices = test_df.index.values
 
     # Simple preprocessing
     # label encode categorical features and fill empty cells
@@ -44,7 +45,9 @@ def get_ndarray(file_path: str, target: str, labeled_size: float, train_size=0.8
     # indices of categorical features
     cat_idxs = [i for i, f in enumerate(features) if f in categorical_columns]
     # dimensions of categorical features
-    cat_dims = [categorical_dims[f] for i, f in enumerate(features) if f in categorical_columns]
+    cat_dims = [
+        categorical_dims[f] for i, f in enumerate(features) if f in categorical_columns
+    ]
 
     # train labeled
     X_l_train = df[features].values[train_l_indices]
@@ -59,8 +62,9 @@ def get_ndarray(file_path: str, target: str, labeled_size: float, train_size=0.8
     y_test = df[target].values[test_indices]
 
     dataset = {
-        "train_labeled"  : (X_l_train, y_l_train),
+        "train_labeled": (X_l_train, y_l_train),
         "train_unlabeled": (X_u_train, y_u_train),
-        "test"           : (X_test, y_test)}
+        "test": (X_test, y_test),
+    }
 
     return dataset, cat_idxs, cat_dims

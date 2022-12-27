@@ -1,25 +1,37 @@
 import warnings
 
 import easyfl
+from easyfl.datasets import FederatedTensorDataset
 from pytorch_tabnet.tab_network import TabNetPretraining
 
-from datasets import uci_income
+from datasets import get_dataset
 from tabnet import PretrainerClient
 
 
 if __name__ == "__main__":
     warnings.simplefilter("ignore")
 
-    train_data, test_data = uci_income.get_dataset(labeled_size=0.1)
-
-    input_dim = train_data.data["f0000000"]["x"].shape[1]
-
     config = easyfl.load_config("./config/tabnet_pretrain.yaml")
+
+    dataset, cat_idxs, cat_dims = get_dataset(
+        file_path=config.data.file_path,
+        target=config.data.target,
+        labeled_size=config.data.labeled_size,
+        train_size=config.data.train_size,
+    )
+
+    X_train, y_train = dataset["train_unlabeled"]
+
+    input_dim = X_train.shape[1]
+
+    train_data = FederatedTensorDataset(
+        data={"x": X_train, "y": y_train}, num_of_clients=config.data.num_of_clients
+    )
 
     # model parameters
     params = config.model_parameters
 
-    easyfl.register_dataset(train_data=train_data, test_data=test_data)
+    easyfl.register_dataset(train_data=train_data, test_data=None)
     easyfl.register_model(
         model=TabNetPretraining(
             input_dim=input_dim,
@@ -28,6 +40,9 @@ if __name__ == "__main__":
             n_a=params.n_a,
             n_steps=params.n_steps,
             gamma=params.gamma,
+            cat_idxs=cat_idxs,
+            cat_dims=cat_dims,
+            cat_emb_dim=params.cat_emb_dim,
             n_independent=params.n_independent,
             n_shared=params.n_shared,
             epsilon=params.epsilon,

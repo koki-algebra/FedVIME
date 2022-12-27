@@ -1,6 +1,14 @@
 # The unique identifier for each federated learning task
 task_id: ""
 
+# Provide dataset and federated learning simulation related configuration.
+data:
+  file_path: "./data/uci_income/adult.csv"
+  target: "salary"
+  train_size: 0.8
+  labeled_size: 0.99
+  num_of_clients: 10
+
 test_mode: "test_in_client"
 # The way to measure testing performance (accuracy) when test mode is `test_in_client`, support: average or weighted (means weighted average).
 test_method: "average"

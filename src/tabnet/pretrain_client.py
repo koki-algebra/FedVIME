@@ -44,10 +44,8 @@ class PretrainerClient(BaseClient):
         self.train_loss = []
 
         for i in range(conf.local_epoch):
-            train_dataloader = self.train_loader["unlabeled"]
-
             batch_loss = []
-            for X, _ in train_dataloader:
+            for X, _ in self.train_loader:
                 X: Tensor = X.to(device).float()
 
                 output, embedded_X, obf_vars = self.model(X)
