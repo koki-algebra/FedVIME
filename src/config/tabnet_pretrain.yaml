@@ -16,7 +16,7 @@ test_method: "average"
 server:
   track: False  # Whether track server metrics using the tracking service.
   rounds: 10  # Total training round.
-  clients_per_round: 1  # The number of clients to train in each round.
+  clients_per_round: 5  # The number of clients to train in each round.
   test_every: 1  # The frequency of testing: conduct testing every N round.
   save_model_every: 10  # The frequency of saving model: save model every N round.
   save_model_path: ""  # The path to save model. Default path is root directory of the library.
@@ -26,7 +26,7 @@ server:
   # The strategy to aggregate client uploaded models, options: FedAvg, equal.
     # FedAvg aggregates models using weighted average, where the weights are data size of clients.
     # equal aggregates model by simple averaging.
-  aggregation_stragtegy: "FedAvg"
+  aggregation_strategy: "FedAvg"
   # The content of aggregation, options: all, parameters.
     # all means aggregating models using state_dict, including both model parameters and persistent buffers like BatchNorm stats.
     # parameters means aggregating only model parameters.
@@ -36,7 +36,7 @@ client:
   track: False  # Whether track server metrics using the tracking service.
   batch_size: 1024  # The batch size of training in client.
   test_batch_size: 5  # The batch size of testing in client.
-  local_epoch: 1  # The number of epochs to train in each round.
+  local_epoch: 10  # The number of epochs to train in each round.
   optimizer:
     type: "Adam"  # The name of the optimizer, options: Adam, SGD.
     lr: 0.001

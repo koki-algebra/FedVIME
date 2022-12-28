@@ -5,7 +5,7 @@ from easyfl.datasets import FederatedTensorDataset
 from pytorch_tabnet.tab_network import TabNetPretraining
 
 from datasets import get_dataset
-from tabnet import PretrainerClient
+from tabnet import PretrainerClient, PretrainerServer
 
 
 if __name__ == "__main__":
@@ -53,6 +53,7 @@ if __name__ == "__main__":
             n_indep_decoder=params.n_indep_decoder,
         )
     )
+    easyfl.register_server(server=PretrainerServer)
     easyfl.register_client(client=PretrainerClient)
 
     easyfl.init(config)
