@@ -34,7 +34,7 @@ server:
 
 client:
   track: False  # Whether track server metrics using the tracking service.
-  batch_size: 32  # The batch size of training in client.
+  batch_size: 1024  # The batch size of training in client.
   test_batch_size: 5  # The batch size of testing in client.
   local_epoch: 1  # The number of epochs to train in each round.
   optimizer:
@@ -44,6 +44,8 @@ client:
     weight_decay: 0
   seed: 0
   local_test: False  # Whether test the trained models in clients before uploading them to the server.
+
+  clip_value: 1
 
 gpu: 0  # The total number of GPUs used in training. 0 means CPU.
 distributed:  # The distributed training configurations. It is only applicable when gpu > 1.
