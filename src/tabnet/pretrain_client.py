@@ -1,7 +1,9 @@
 import time
 import logging
 
+import torch
 from torch import Tensor
+from torch.nn.utils.clip_grad import clip_grad_norm
 from easyfl.client.base import BaseClient
 from pytorch_tabnet.metrics import UnsupervisedLoss
 
@@ -39,6 +41,8 @@ class PretrainerClient(BaseClient):
         return UnsupervisedLoss
 
     def train(self, conf, device):
+        torch.autograd.anomaly_mode.set_detect_anomaly(True)
+
         start_time = time.time()
         loss_fn, optimizer = self.pretrain_setup(conf, device)
         self.train_loss = []
@@ -54,6 +58,8 @@ class PretrainerClient(BaseClient):
                 # Perform backward pass and optimization
                 optimizer.zero_grad()
                 loss.backward()
+                if conf.clip_value:
+                    clip_grad_norm(self.model.parameters(), conf.clip_value)
                 optimizer.step()
 
                 # batch loss
